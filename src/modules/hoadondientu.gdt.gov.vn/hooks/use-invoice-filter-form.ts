@@ -1,0 +1,66 @@
+"use client";
+
+import { useCallback, useReducer } from "react";
+import {
+  getCurrentMonthDateRange,
+  formatDateForDisplay,
+} from "@global/utils/date";
+import {
+  EMPTY_FILTER_FORM,
+  type InvoiceFilterFormState,
+} from "@modules/hoadondientu.gdt.gov.vn/lib/mappers";
+
+type FilterAction =
+  | { type: "CHANGE"; field: keyof InvoiceFilterFormState; value: string }
+  | { type: "RESET"; from: string; to: string };
+
+function createInitialState(): InvoiceFilterFormState {
+  const range = getCurrentMonthDateRange();
+  return {
+    ...EMPTY_FILTER_FORM,
+    from_date: formatDateForDisplay(range.from),
+    to_date: formatDateForDisplay(range.to),
+  };
+}
+
+function reduceFilterState(
+  state: InvoiceFilterFormState,
+  action: FilterAction,
+): InvoiceFilterFormState {
+  switch (action.type) {
+    case "CHANGE":
+      return { ...state, [action.field]: action.value };
+    case "RESET":
+      return {
+        ...EMPTY_FILTER_FORM,
+        from_date: action.from,
+        to_date: action.to,
+      };
+  }
+}
+
+export function useInvoiceFilterForm() {
+  const [form, dispatch] = useReducer(
+    reduceFilterState,
+    undefined,
+    createInitialState,
+  );
+
+  const change = useCallback(
+    (field: keyof InvoiceFilterFormState, value: string) => {
+      dispatch({ type: "CHANGE", field, value });
+    },
+    [],
+  );
+
+  const reset = useCallback(() => {
+    const range = getCurrentMonthDateRange();
+    dispatch({
+      type: "RESET",
+      from: formatDateForDisplay(range.from),
+      to: formatDateForDisplay(range.to),
+    });
+  }, []);
+
+  return { form, change, reset };
+}

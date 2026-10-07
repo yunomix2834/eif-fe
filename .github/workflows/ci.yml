@@ -1,0 +1,67 @@
+name: Frontend CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NPM_VERSION: "10.9.2"
+  TRIVY_VERSION: "v0.74.0"
+
+jobs:
+  ci:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    env:
+      NEXT_PUBLIC_APP_NAME: EIF
+      NEXT_PUBLIC_APP_VERSION: ci-${{ github.sha }}
+      NEXT_PUBLIC_API_BASE_URL: /api/v1
+      NEXT_PUBLIC_SESSION_SYNC_INTERVAL_MS: "60000"
+      NEXT_PUBLIC_LOG_LEVEL: info
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Pin npm
+        run: npm install --global "npm@${NPM_VERSION}"
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Quality checks
+        run: |
+          make lock-check
+          make architecture
+          make lint
+          make typecheck
+
+      - name: Build static frontend
+        run: make build
+
+      - name: Setup Trivy
+        uses: aquasecurity/setup-trivy@e07451d2e059ed86c2870430ea286b3a9e0bf241
+        with:
+          version: ${{ env.TRIVY_VERSION }}
+          cache: true
+
+      - name: Source security
+        run: ./scripts/ci/trivy-source.sh dist/security/source
