@@ -18,16 +18,19 @@ export function getNumericValue(
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-export function getStatusLabel(value: unknown): string {
+function getCodeLabel(
+  value: unknown,
+  options: readonly (readonly [number, string])[],
+): string {
   if (typeof value !== "number")
     return value === null || value === undefined ? "-" : String(value);
-  return INVOICE_STATUS.find(([code]) => code === value)?.[1] ?? String(value);
+  return options.find(([code]) => code === value)?.[1] ?? String(value);
+}
+
+export function getStatusLabel(value: unknown): string {
+  return getCodeLabel(value, INVOICE_STATUS);
 }
 
 export function getProcessingLabel(value: unknown): string {
-  if (typeof value !== "number")
-    return value === null || value === undefined ? "-" : String(value);
-  return (
-    PROCESSING_STATUS.find(([code]) => code === value)?.[1] ?? String(value)
-  );
+  return getCodeLabel(value, PROCESSING_STATUS);
 }

@@ -8,43 +8,12 @@ import { ERROR_CODES } from "@global/error/error-code";
 import type {
   ExportInvoiceRequest,
   HoaDonQuery,
+  InvoiceQueryResponse,
   InvoiceQueryResult,
-  InvoiceRecord,
 } from "@modules/hoadondientu.gdt.gov.vn/dto/invoice";
 import { HDDT_ENDPOINTS } from "@modules/hoadondientu.gdt.gov.vn/lib/endpoints";
+import { normalizeInvoiceQueryResult } from "@modules/hoadondientu.gdt.gov.vn/lib/invoice-response";
 import type { InvoiceMode } from "@modules/hoadondientu.gdt.gov.vn/model/invoice-mode";
-
-type InvoiceQueryResponse = Partial<Omit<InvoiceQueryResult, "records">> & {
-  // `datas` là field của API Thuế/backend; service map sang `records` để code UI rõ nghĩa.
-  datas?: InvoiceRecord[] | null;
-};
-
-function normalizeQueryResult(
-  response: InvoiceQueryResponse | null | undefined,
-  payload: HoaDonQuery,
-): InvoiceQueryResult {
-  if (!response || typeof response !== "object") {
-    throw createAppError(ERROR_CODES.invalidResponse, {
-      details: { reason: "Invoice query response is not an object." },
-    });
-  }
-
-  const records = Array.isArray(response.datas) ? response.datas : [];
-
-  return {
-    from_date:
-      typeof response.from_date === "string"
-        ? response.from_date
-        : payload.from_date,
-    to_date:
-      typeof response.to_date === "string" ? response.to_date : payload.to_date,
-    records,
-    total:
-      typeof response.total === "number" && Number.isFinite(response.total)
-        ? response.total
-        : records.length,
-  };
-}
 
 export async function queryInvoices(
   sessionId: string,
@@ -63,7 +32,12 @@ export async function queryInvoices(
     },
   );
 
-  return normalizeQueryResult(response, payload);
+  if (!response || typeof response !== "object") {
+    throw createAppError(ERROR_CODES.invalidResponse, {
+      details: { reason: "Invoice query response is not an object." },
+    });
+  }
+  return normalizeInvoiceQueryResult(response, payload);
 }
 
 export function exportInvoices(

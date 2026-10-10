@@ -17,9 +17,6 @@ export type InvoiceFilterFormState = {
   tthai: string;
   ttxly: string;
   unhiem: string;
-
-  // CCCD người mua tạm thời không dùng trên frontend.
-  // nmcmnd: string;
 };
 
 export const EMPTY_FILTER_FORM: InvoiceFilterFormState = {
@@ -162,11 +159,5 @@ export function toExportPayload(
   form: InvoiceFilterFormState,
   format: ExportFormat,
 ): ExportInvoiceRequest {
-  const { fromDate, toDate } = normalizeDates(form);
-  return {
-    ...compactFilter(form),
-    from_date: fromDate,
-    to_date: toDate,
-    format,
-  };
+  return { ...toQueryPayload(form), format };
 }

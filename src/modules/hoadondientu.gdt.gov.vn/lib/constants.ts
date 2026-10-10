@@ -25,19 +25,7 @@ export const PURCHASE_PROCESSING_STATUS = PROCESSING_STATUS.filter(
   ([value]) => value === 5 || value === 6 || value === 8,
 );
 
-/*
- * Các tab cũ được giữ lại dưới dạng comment để có thể tham chiếu khi cần:
- *
- * export const LEGACY_INVOICE_MODES = [
- *   { id: "standard-sold", shortLabel: "Bán ra", channel: "standard", direction: "sold" },
- *   { id: "standard-purchase", shortLabel: "Mua vào", channel: "standard", direction: "purchase" },
- *   { id: "sco-sold", shortLabel: "MTT bán ra", channel: "sco", direction: "sold" },
- *   { id: "sco-purchase", shortLabel: "MTT mua vào", channel: "sco", direction: "purchase" },
- * ];
- *
- * UI hiện tại chỉ dùng hai wrapper endpoint bên dưới. Mỗi wrapper tự tổng hợp
- * dữ liệu hóa đơn thường + hóa đơn khởi tạo từ máy tính tiền.
- */
+// Mỗi tab gọi endpoint tổng hợp cả hóa đơn thường và máy tính tiền.
 export const INVOICE_MODES: InvoiceMode[] = [
   {
     id: "sold",

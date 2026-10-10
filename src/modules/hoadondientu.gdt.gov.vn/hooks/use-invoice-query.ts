@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { toAppError } from "@global/error/error-handler";
+import { useRequestController } from "@global/hooks/use-request-controller";
 import type {
   HoaDonQuery,
   InvoiceQueryResult,
@@ -24,30 +25,23 @@ export function useInvoiceQuery(
     error: null,
     isLoading: false,
   });
-  const controllerRef = useRef<AbortController | null>(null);
+  const { start, cancel } = useRequestController();
 
   const execute = useCallback(
     async (payload: HoaDonQuery) => {
       if (!sessionId) throw new Error("Bạn chưa có EIF session.");
 
-      controllerRef.current?.abort();
-      const controller = new AbortController();
-      controllerRef.current = controller;
+      const signal = start();
       setState({ data: null, error: null, isLoading: true });
 
       try {
-        const data = await queryInvoices(
-          sessionId,
-          mode,
-          payload,
-          controller.signal,
-        );
-        if (controller.signal.aborted) return null;
+        const data = await queryInvoices(sessionId, mode, payload, signal);
+        if (signal.aborted) return null;
 
         setState({ data, error: null, isLoading: false });
         return data;
       } catch (value) {
-        if (controller.signal.aborted) return null;
+        if (signal.aborted) return null;
         if (value instanceof DOMException && value.name === "AbortError")
           return null;
         const error = toAppError(value);
@@ -55,21 +49,13 @@ export function useInvoiceQuery(
         throw error;
       }
     },
-    [sessionId, mode],
+    [sessionId, mode, start],
   );
 
   const reset = useCallback(() => {
-    controllerRef.current?.abort();
-    controllerRef.current = null;
+    cancel();
     setState({ data: null, error: null, isLoading: false });
-  }, []);
-
-  useEffect(
-    () => () => {
-      controllerRef.current?.abort();
-    },
-    [],
-  );
+  }, [cancel]);
 
   return { ...state, execute, reset };
 }

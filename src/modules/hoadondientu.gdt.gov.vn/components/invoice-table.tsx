@@ -30,6 +30,7 @@ export function InvoiceTable({ records }: { records: InvoiceRecord[] }) {
       <table className="eif-table">
         <thead>
           <tr>
+            <th>Nguồn</th>
             <th>Số HĐ</th>
             <th>Mẫu số</th>
             <th>Ký hiệu</th>
@@ -46,6 +47,7 @@ export function InvoiceTable({ records }: { records: InvoiceRecord[] }) {
         <tbody>
           {records.map((record, index) => (
             <tr key={createRowKey(record, index)}>
+              <td>{getTextValue(record, "_eif_source")}</td>
               <td className="font-semibold">{getTextValue(record, "shdon")}</td>
               <td>{getTextValue(record, "khmshdon")}</td>
               <td>{getTextValue(record, "khhdon")}</td>

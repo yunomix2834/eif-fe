@@ -33,7 +33,6 @@ if ! trivy fs \
   status=1
 fi
 
-# Avoid persisting a secret report because findings can contain sensitive snippets.
 log_info "Failing on any detected secret"
 if ! trivy fs \
   --scanners secret \

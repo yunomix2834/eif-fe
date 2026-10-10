@@ -48,9 +48,8 @@ export function ExportMenu({
   useEffect(() => {
     if (!isOpen) return;
 
-    // Menu là popup tự quản lý nên cần đóng khi user click ra ngoài hoặc nhấn
-    // Escape. Listener chỉ tồn tại trong lúc menu đang mở để tránh giữ listener
-    // toàn cục không cần thiết trong suốt vòng đời của trang.
+    // Menu là popup tự quản lý nên cần đóng khi user click ra ngoài hoặc nhấn Escape.
+    // Listener chỉ tồn tại trong lúc menu đang mở để tránh giữ listener toàn cục không cần thiết trong suốt vòng đời của trang.
     function closeWhenClickOutside(event: PointerEvent) {
       const target = event.target;
       if (!(target instanceof Node)) return;

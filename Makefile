@@ -2,13 +2,14 @@ PRETTIER := ./node_modules/.bin/prettier
 FORMAT_PATHS := \
 	"src/**/*.{ts,tsx,js,jsx,css}" \
 	"scripts/**/*.{mjs,js}" \
+	"tests/**/*.mjs" \
 	"*.{json,mjs,ts}"
 
 .PHONY: \
 	install \
-	format \
+	format format-check \
 	lock-check \
-	architecture lint typecheck \
+	architecture lint typecheck test \
 	build \
 	ci
 
@@ -17,6 +18,9 @@ install:
 
 format:
 	$(PRETTIER) --write $(FORMAT_PATHS)
+
+format-check:
+	$(PRETTIER) --check $(FORMAT_PATHS)
 
 lock-check:
 	./scripts/ci/check-lock.sh
@@ -30,7 +34,10 @@ lint:
 typecheck:
 	npm run typecheck
 
+test:
+	npm run test
+
 build:
 	npm run build
 
-ci: lock-check install architecture lint typecheck build
+ci: lock-check install format-check architecture lint typecheck test build

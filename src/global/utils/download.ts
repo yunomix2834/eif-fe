@@ -26,31 +26,3 @@ export function downloadBlob(blob: Blob, filename: string): void {
   anchor.remove();
   URL.revokeObjectURL(url);
 }
-
-export function getExtensionFromContentType(
-  contentType: string,
-): "xlsx" | "csv" | "xml" | "json" | "zip" | "bin" {
-  const type = contentType.toLowerCase();
-
-  if (type.includes("spreadsheetml")) {
-    return "xlsx";
-  }
-
-  if (type.includes("text/csv") || type.includes("application/csv")) {
-    return "csv";
-  }
-
-  if (type.includes("xml")) {
-    return "xml";
-  }
-
-  if (type.includes("json")) {
-    return "json";
-  }
-
-  if (type.includes("zip")) {
-    return "zip";
-  }
-
-  return "bin";
-}

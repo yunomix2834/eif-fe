@@ -96,9 +96,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     theme === "system" ? (prefersDark ? "dark" : "light") : theme;
 
   useEffect(() => {
-    // Đọc trực tiếp snapshot thật từ browser thay vì dùng server snapshot của
-    // hydration. Nhờ vậy React không ghi đè màu đã bootstrap trong <head>
-    // bằng màu mặc định trong một frame rồi mới đổi lại.
+    // Đọc trực tiếp snapshot thật từ browser thay vì dùng server snapshot của hydration.
+    // Nhờ vậy React không ghi đè màu đã bootstrap trong <head> bằng màu mặc định trong một frame rồi mới đổi lại.
     const actualTheme = getThemeSnapshot();
     const actualPrefersDark = isDarkModePreferredSnapshot();
     const actualResolvedTheme =

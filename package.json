@@ -7,8 +7,11 @@
     "build": "next build",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "node --test tests/invoice.test.mjs",
+    "format": "prettier --write src scripts tests *.json *.mjs *.ts",
+    "format:check": "prettier --check src scripts tests *.json *.mjs *.ts",
     "check:architecture": "node scripts/check-architecture.mjs",
-    "check": "npm run check:architecture && npm run lint && npm run typecheck && npm run build",
+    "check": "npm run check:architecture && npm run lint && npm run typecheck && npm run test && npm run build",
     "copy:backend": "node scripts/copy-to-backend.mjs"
   },
   "dependencies": {

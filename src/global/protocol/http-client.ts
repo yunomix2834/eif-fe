@@ -195,11 +195,7 @@ export async function requestFile(
   const response = await request(path, {
     ...options,
 
-    // Format file thực tế đã được gửi trong request body qua trường `format`.
-    // Vì vậy frontend không cần liệt kê toàn bộ MIME type ở Accept.
-    //
-    // Dùng */* giúp request đơn giản hơn và tránh tạo thêm điều kiện
-    // không cần thiết cho CORS preflight khi frontend/backend chạy khác port.
+    // Định dạng đã nằm trong body; Accept chỉ cần cho phép file tải xuống.
     accept: "*/*",
   });
 

@@ -1,11 +1,7 @@
 "use client";
 
 import type { ChangeEvent, FormEvent, ReactNode } from "react";
-import {
-  displayDateToISO,
-  formatDateForDisplay,
-  normalizeDateDisplayInput,
-} from "@global/utils/date";
+import { DateInput } from "@global/components/date-input";
 import {
   INVOICE_STATUS,
   PROCESSING_STATUS,
@@ -14,7 +10,7 @@ import {
 import type { InvoiceFilterFormState } from "@modules/hoadondientu.gdt.gov.vn/lib/mappers";
 import type { InvoiceMode } from "@modules/hoadondientu.gdt.gov.vn/model/invoice-mode";
 
-export type FilterField = keyof InvoiceFilterFormState;
+type FilterField = keyof InvoiceFilterFormState;
 
 function FilterRow({
   id,
@@ -31,72 +27,6 @@ function FilterRow({
         {label}
       </label>
       <div className="eif-filter-control">{children}</div>
-    </div>
-  );
-}
-
-function DateInput({
-  id,
-  value,
-  onChange,
-  label,
-}: {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  label: string;
-}) {
-  const isoValue = displayDateToISO(value) ?? "";
-
-  return (
-    <div className="relative">
-      <input
-        id={id}
-        className="eif-input pr-12 tabular-nums"
-        type="text"
-        inputMode="numeric"
-        autoComplete="off"
-        maxLength={10}
-        placeholder="DD/MM/YYYY"
-        value={value}
-        onChange={(event) =>
-          onChange(normalizeDateDisplayInput(event.target.value))
-        }
-        required
-      />
-
-      <span
-        className="pointer-events-none absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[var(--muted)]"
-        aria-hidden="true"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          className="h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-        >
-          <path d="M7 3v3M17 3v3M4.5 9.5h15" strokeLinecap="round" />
-          <rect x="4.5" y="5.5" width="15" height="14" rx="2.5" />
-        </svg>
-      </span>
-
-      {/*
-        Native date input chỉ phủ lên vùng icon lịch. End-user vẫn thấy/nhập
-        DD/MM/YYYY ở input text nhưng khi bấm icon sẽ dùng calendar picker
-        của browser/OS.
-      */}
-      <input
-        type="date"
-        className="absolute inset-y-0 right-0 w-11 cursor-pointer opacity-0"
-        value={isoValue}
-        onChange={(event) => {
-          if (event.target.value)
-            onChange(formatDateForDisplay(event.target.value));
-        }}
-        aria-label={`Chọn ${label} từ lịch`}
-        title={`Chọn ${label} từ lịch`}
-      />
     </div>
   );
 }
@@ -133,12 +63,9 @@ export function InvoiceFilterForm({
   onChange: (field: FilterField, value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
-  const inputChange =
-    (field: FilterField) => (event: ChangeEvent<HTMLInputElement>) =>
-      onChange(field, event.target.value);
-
-  const selectChange =
-    (field: FilterField) => (event: ChangeEvent<HTMLSelectElement>) =>
+  const fieldChange =
+    (field: FilterField) =>
+    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       onChange(field, event.target.value);
 
   const processingStatuses =
@@ -162,7 +89,7 @@ export function InvoiceFilterForm({
             type="number"
             min="0"
             value={form.shdon}
-            onChange={inputChange("shdon")}
+            onChange={fieldChange("shdon")}
             placeholder="Nhập số hóa đơn"
           />
         </FilterRow>
@@ -172,7 +99,7 @@ export function InvoiceFilterForm({
             id="invoice-symbol"
             className="eif-input"
             value={form.khhdon}
-            onChange={inputChange("khhdon")}
+            onChange={fieldChange("khhdon")}
             placeholder="Ví dụ: C26TER"
           />
         </FilterRow>
@@ -184,7 +111,7 @@ export function InvoiceFilterForm({
             type="number"
             min="0"
             value={form.khmshdon}
-            onChange={inputChange("khmshdon")}
+            onChange={fieldChange("khmshdon")}
             placeholder="Nhập mẫu số"
           />
         </FilterRow>
@@ -194,7 +121,7 @@ export function InvoiceFilterForm({
             id="seller-tax-code"
             className="eif-input"
             value={form.nbmst}
-            onChange={inputChange("nbmst")}
+            onChange={fieldChange("nbmst")}
             inputMode="numeric"
             placeholder="Nhập MST người bán"
           />
@@ -205,27 +132,11 @@ export function InvoiceFilterForm({
             id="buyer-tax-code"
             className="eif-input"
             value={form.nmmst}
-            onChange={inputChange("nmmst")}
+            onChange={fieldChange("nmmst")}
             inputMode="numeric"
             placeholder="Nhập MST người mua"
           />
         </FilterRow>
-
-        {/*
-          Bộ lọc CCCD người mua tạm thời không dùng trên frontend.
-          Backend vẫn giữ nmcmnd để tương thích với API cũ.
-
-          <FilterRow id="buyer-id" label="CCCD người mua">
-            <input
-              id="buyer-id"
-              className="eif-input"
-              value={form.nmcmnd}
-              onChange={inputChange("nmcmnd")}
-              inputMode="numeric"
-              placeholder="Nhập CCCD người mua"
-            />
-          </FilterRow>
-        */}
       </section>
 
       <section className="grid content-start gap-3 border-t border-[var(--border)] py-5 xl:border-l xl:border-t-0 xl:px-7 xl:py-0">
@@ -275,7 +186,7 @@ export function InvoiceFilterForm({
             id="delegated-invoice"
             className="eif-input"
             value={form.unhiem}
-            onChange={selectChange("unhiem")}
+            onChange={fieldChange("unhiem")}
           >
             <option value="">Tất cả</option>
             <option value="0">Không</option>
@@ -288,7 +199,7 @@ export function InvoiceFilterForm({
             id="invoice-status"
             className="eif-input"
             value={form.tthai}
-            onChange={selectChange("tthai")}
+            onChange={fieldChange("tthai")}
           >
             <option value="">Tất cả</option>
             {INVOICE_STATUS.map(([value, label]) => (
@@ -304,7 +215,7 @@ export function InvoiceFilterForm({
             id="processing-status"
             className="eif-input"
             value={form.ttxly}
-            onChange={selectChange("ttxly")}
+            onChange={fieldChange("ttxly")}
           >
             <option value="">Tất cả</option>
             {processingStatuses.map(([value, label]) => (
@@ -314,23 +225,6 @@ export function InvoiceFilterForm({
             ))}
           </select>
         </FilterRow>
-
-        {/*
-          Số bản ghi đã được cố định là 50 ở payload và wrapper backend.
-          Field nhập tay cũ được giữ lại dưới dạng comment theo yêu cầu.
-
-          <FilterRow id="result-size" label="Số bản ghi">
-            <input
-              id="result-size"
-              className="eif-input"
-              type="number"
-              min="1"
-              max="5000"
-              value={form.size}
-              onChange={inputChange("size")}
-            />
-          </FilterRow>
-        */}
       </section>
     </form>
   );

@@ -7,9 +7,6 @@ export type InvoiceFilter = {
   tthai?: number;
   ttxly?: number;
   unhiem?: number;
-
-  // Bộ lọc CCCD (nmcmnd) tạm thời chưa hiển thị/gửi từ frontend.
-  // nmcmnd?: string;
 };
 
 export type HoaDonQuery = InvoiceFilter & {
@@ -23,17 +20,28 @@ export type HoaDonQuery = InvoiceFilter & {
 // import hoặc trao đổi dữ liệu giữa các hệ thống.
 export type ExportFormat = "xlsx" | "csv" | "xml" | "json";
 
-export type ExportInvoiceRequest = InvoiceFilter & {
-  from_date: string;
-  to_date: string;
+export type ExportInvoiceRequest = HoaDonQuery & {
   format: ExportFormat;
 };
 
 export type InvoiceRecord = Record<string, unknown>;
+
+export type InvoiceChannel = "standard" | "sco";
+
+export type InvoiceSourceTotals = Record<InvoiceChannel, number>;
 
 export type InvoiceQueryResult = {
   from_date: string;
   to_date: string;
   records: InvoiceRecord[];
   total: number;
+  source_totals: InvoiceSourceTotals;
+};
+
+// API dùng datas; giao diện dùng records sau khi chuẩn hóa response.
+export type InvoiceQueryResponse = Partial<
+  Omit<InvoiceQueryResult, "records" | "source_totals">
+> & {
+  datas?: InvoiceRecord[] | null;
+  source_totals?: Partial<InvoiceSourceTotals> | null;
 };
